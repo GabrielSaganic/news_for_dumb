@@ -1,0 +1,43 @@
+name: Daily scrape N1 latest news
+
+on:
+  schedule:
+    - cron: '0 22 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install Pipenv
+        run: |
+          pip install pipenv
+
+      - name: Install dependencies with Pipenv
+        run: |
+          pipenv install --deploy --ignore-pipfile
+
+      - name: Set environment variables
+        env:
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        run: echo "Environment variables set."
+
+      - name: Run n1_latest_news management command
+        env:
+          DJANGO_SETTINGS_MODULE: news_for_dumb.source.source.settings
+        run: |
+          poetry run python manage.py n1_latest_news --page --country="hr"

@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools==75.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "news-for-dumb"
+description = "AI summerized news."
+# dynamic = ["version"]
+version = "0.0.1"
+readme = "README.md"
+authors = [
+    {name = "Gabriel Saganić", email = "gabriel.saganic@gmail.com"}
+]
+maintainers = [
+    {name = "Gabriel Saganić", email = "gabriel.saganic@gmail.com"}
+]
+requires-python = ">=3.10"
+dependencies=[
+    "django==5.1.*",
+    "newsapi-python==0.2.7",
+    "beautifulsoup4==4.13.3",
+    "pytz==2025.1",
+    "PyMySQL==1.1.1",
+    "python-dotenv==1.0.1",
+]
+keywords = ["news", "AI", "summerized"]
+
+[project.optional-dependencies]
+dev = [
+  "black==25.1.0",
+  "isort==6.0.1"
+]
+
+[project.scripts]
+"manage.py" = "myproject:django_manage"
