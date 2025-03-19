@@ -72,19 +72,24 @@ class N1Api:
         post_time = soup.find("span", class_="post-time")
         date = post_time.find_all("span")[0].text.strip()
         time = post_time.find_all("span")[1].text.strip()
-        if country.lower() == "hr":
-            locale.setlocale(locale.LC_TIME, "hr_HR.UTF-8")  # Croatian locale
-            tz = timezone("Europe/Zagreb")  # Croatia's timezone
-        elif country.lower() == "rs":
-            locale.setlocale(locale.LC_TIME, "sr_RS.UTF-8")  # Serbian locale
-            tz = timezone("Europe/Belgrade")  # Serbia's timezone
-        elif country.lower() == "ba":
-            locale.setlocale(locale.LC_TIME, "bs_BA.UTF-8")  # Bosnian locale
-            tz = timezone("Europe/Sarajevo")  # Bosnia's timezone
-        else:
-            raise ValueError(
-                "Unsupported country. Please specify 'Croatia', 'Serbia', or 'Bosnia'."
-            )
+        try:
+            if country.lower() == "hr":
+                locale.setlocale(locale.LC_TIME, "hr_HR.UTF-8")  # Croatian locale
+                tz = timezone("Europe/Zagreb")  # Croatia's timezone
+            elif country.lower() == "rs":
+                locale.setlocale(locale.LC_TIME, "sr_RS.UTF-8")  # Serbian locale
+                tz = timezone("Europe/Belgrade")  # Serbia's timezone
+            elif country.lower() == "ba":
+                locale.setlocale(locale.LC_TIME, "bs_BA.UTF-8")  # Bosnian locale
+                tz = timezone("Europe/Sarajevo")  # Bosnia's timezone
+            else:
+                raise ValueError(
+                    "Unsupported country. Please specify 'Croatia', 'Serbia', or 'Bosnia'."
+                )
+        except locale.Error as error:
+            # TODO: this need to be fixed in github action
+            logging.error(f"unsupported locale setting.")
+            return None
 
         try:
             news_time = datetime.strptime(date + " " + time, "%d. %b %Y %H:%M")
@@ -149,7 +154,6 @@ class N1Api:
             url = title_element.get("href")
             # TODO need to be done better, not have DB call each time
             if not News.objects.filter(url=url, country=country).exists():
-                logging.info("dsadsd")
                 url_split = url.split("/")
                 category = url_split[3]
                 data = {

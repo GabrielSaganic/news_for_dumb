@@ -8,6 +8,8 @@ description = "AI summerized news."
 # dynamic = ["version"]
 version = "0.0.1"
 readme = "README.md"
+package-mode = false
+
 authors = [
     {name = "Gabriel Saganić", email = "gabriel.saganic@gmail.com"}
 ]

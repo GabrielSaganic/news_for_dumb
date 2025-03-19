@@ -16,17 +16,19 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: 3.12.3
 
       - name: Install Pipenv
         run: |
           pip install pipenv
 
-      - name: Install dependencies with Pipenv
+      - name: Install dependencies
         run: |
-          pipenv install --deploy --ignore-pipfile
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install --no-root
 
-      - name: Set environment variables
+      - name: Run n1_latest_news management command
         env:
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           MYSQL_USER: ${{ secrets.MYSQL_USER }}
@@ -34,10 +36,6 @@ jobs:
           MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
           DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-        run: echo "Environment variables set."
-
-      - name: Run n1_latest_news management command
-        env:
-          DJANGO_SETTINGS_MODULE: news_for_dumb.source.source.settings
+          DJANGO_SETTINGS_MODULE: source.settings
         run: |
-          poetry run python manage.py n1_latest_news --page --country="hr"
+          poetry run python source/manage.py n1_latest_news --page=1 --country="hr"
