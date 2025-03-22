@@ -1,5 +1,4 @@
 import locale
-import logging
 from datetime import datetime
 
 import requests
@@ -9,10 +8,8 @@ from pytz import timezone
 
 from ..models import News
 
-logging.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    level=logging.INFO,
-)
+from log_utilis.utilis import make_logger
+logger = make_logger()
 
 
 class N1Api:
@@ -88,19 +85,19 @@ class N1Api:
                 )
         except locale.Error as error:
             # TODO: this need to be fixed in github action
-            logging.error(f"unsupported locale setting.")
+            logger.error(f"unsupported locale setting.")
             return None
 
         try:
             news_time = datetime.strptime(date + " " + time, "%d. %b %Y %H:%M")
             news_time = make_aware(news_time, timezone=tz)
         except ValueError:
-            logging.error(
+            logger.error(
                 f"Time: {date + ' ' + time} does not match format '%d. %b %Y %H:%M"
             )
             return None
         except Exception as error:
-            logging.error(f"Error occur when getting post time. Error: {error}")
+            logger.error(f"Error occur when getting post time. Error: {error}")
             return None
 
         return news_time
@@ -141,7 +138,7 @@ class N1Api:
             #     {"category": "regija", "url": "https://n1info.hr/regija/..."},
             # ]
         """
-        logging.info(f"Getting latest news. Country: {country}, Page: {page}")
+        logger.info(f"Getting latest news. Country: {country}, Page: {page}")
         url = f"https://n1info.{country}/najnovije/page/{page}"
         response = requests.get(url)
         html_content = response.text
@@ -198,5 +195,5 @@ class N1Api:
             return "kultura"
         if category in ["zdravlje"]:
             return "health"
-        logging.error(f"Not know category: {category}.")
+        logger.error(f"Not know category: {category}.")
         return ""

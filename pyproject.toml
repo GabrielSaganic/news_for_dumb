@@ -8,7 +8,6 @@ description = "AI summerized news."
 # dynamic = ["version"]
 version = "0.0.1"
 readme = "README.md"
-package-mode = false
 
 authors = [
     {name = "Gabriel Saganić", email = "gabriel.saganic@gmail.com"}
@@ -22,7 +21,7 @@ dependencies=[
     "newsapi-python==0.2.7",
     "beautifulsoup4==4.13.3",
     "pytz==2025.1",
-    "PyMySQL==1.1.1",
+    "boto3==1.37.18",
     "python-dotenv==1.0.1",
 ]
 keywords = ["news", "AI", "summerized"]
