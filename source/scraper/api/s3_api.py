@@ -2,7 +2,7 @@ import os
 
 import boto3
 from botocore.exceptions import ClientError
-from log_utilis.utilis import make_logger
+from log_utilis import make_logger
 
 logger = make_logger()
 

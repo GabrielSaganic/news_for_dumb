@@ -1,11 +1,9 @@
-
 import os
 
 from django.core.management.base import BaseCommand
-
-from log_utilis.utilis import make_logger
-from ...models import News
-from ...api import N1Api, S3API
+from log_utilis import make_logger
+from scraper.api import N1Api
+from scraper.models import News, Tag
 
 logger = make_logger()
 
@@ -31,12 +29,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        s3_api = S3API()
-
-        database_downloaded = s3_api.download_from_s3(S3_BUCKET, "news_for_dumb.sqlite3", "news_for_dumb.sqlite3")
-        if not database_downloaded:
-            raise ConnectionError("S3 database not downloaded.")
-
         n1_api = N1Api()
         countries_param = options["country"]
         category_param = options["category"]
@@ -68,18 +60,19 @@ class Command(BaseCommand):
         number_of_errors = 0
         for news in latest_news:
             logger.info(f"Started fetching news: {news.get('url')}")
+            news_detail = {}
             try:
                 news_detail = n1_api.update_news_with_detail(news)
-                News.objects.create(**news_detail)
+                tags_list = []
+                for tag in news_detail.pop("tags", []):
+                    tags_list.append(Tag.objects.get_or_create(name=tag)[0])
+                news = News.objects.create(**news_detail)
+                news.tags.add(*tags_list)
             except Exception:
                 logger.exception(
                     f"Error adding news to DB. Url: {news_detail.get('url')}"
                 )
                 number_of_errors = number_of_errors + 1
-        database_uploaded = s3_api.upload_file_s3("news_for_dumb.sqlite3", S3_BUCKET, "news_for_dumb.sqlite3")
-
-        if not database_uploaded:
-            raise ConnectionError("S3 database not uploaded.")
 
         logger.info(
             f"Finish scraping latest news. Success: {len(latest_news) - number_of_errors}/{len(latest_news)}"

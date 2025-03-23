@@ -23,6 +23,8 @@ dependencies=[
     "pytz==2025.1",
     "boto3==1.37.18",
     "python-dotenv==1.0.1",
+    "djangorestframework==3.15.2",
+    "psycopg2-binary (>=2.9.10,<3.0.0)",
 ]
 keywords = ["news", "AI", "summerized"]
 
@@ -34,3 +36,17 @@ dev = [
 
 [project.scripts]
 "manage.py" = "myproject:django_manage"
+
+[tool.isort]
+profile = "black"
+skip = ["migrations", "settings.py", "admin.py"]
+
+[tool.black]
+line-length = 88
+exclude = '''
+(
+    migrations/.*
+    | settings.py$
+    | admin.py$
+)
+'''

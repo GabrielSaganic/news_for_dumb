@@ -30,8 +30,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
     "scraper",
     "users",
+    "summarizer",
 ]
 
 MIDDLEWARE = [
@@ -49,7 +51,7 @@ ROOT_URLCONF = "source.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -70,8 +72,12 @@ WSGI_APPLICATION = "source.wsgi.application"
 
 DATABASES = {
     'default': {
-       'ENGINE': 'django.db.backends.sqlite3',
-       'NAME': BASE_DIR / 'news_for_dumb.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get("POSTGRES_DB", ""),
+        'USER': os.environ.get("POSTGRES_USER", ""),
+        'PASSWORD': os.environ.get("POSTGRES_PASSWORD", ""),
+        'HOST': 'db',
+        'PORT': '5432',
     }
 }
 

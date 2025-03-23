@@ -1,14 +1,12 @@
-import locale
 from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
 from django.utils.timezone import make_aware
+from log_utilis import make_logger
 from pytz import timezone
+from scraper.models import News
 
-from ..models import News
-
-from log_utilis.utilis import make_logger
 logger = make_logger()
 
 
@@ -27,11 +25,14 @@ class N1Api:
         content = self.get_news_content(soup)
         post_time = self.get_news_time(soup, news_dict.get("country"))
         author = self.get_news_author(soup)
+        tags = self.get_news_tags(soup)
 
         news_dict["title"] = title
         news_dict["content"] = content
         news_dict["post_time"] = post_time
         news_dict["author"] = author
+        news_dict["tags"] = tags
+
         return news_dict
 
     @staticmethod
@@ -64,33 +65,15 @@ class N1Api:
         content = content.replace("\n", "")
         return content
 
-    @staticmethod
-    def get_news_time(soup: BeautifulSoup, country: str) -> [datetime, None]:
+    def get_news_time(self, soup: BeautifulSoup, country: str) -> [datetime, None]:
         post_time = soup.find("span", class_="post-time")
         date = post_time.find_all("span")[0].text.strip()
         time = post_time.find_all("span")[1].text.strip()
-        try:
-            if country.lower() == "hr":
-                locale.setlocale(locale.LC_TIME, "hr_HR.UTF-8")  # Croatian locale
-                tz = timezone("Europe/Zagreb")  # Croatia's timezone
-            elif country.lower() == "rs":
-                locale.setlocale(locale.LC_TIME, "sr_RS.UTF-8")  # Serbian locale
-                tz = timezone("Europe/Belgrade")  # Serbia's timezone
-            elif country.lower() == "ba":
-                locale.setlocale(locale.LC_TIME, "bs_BA.UTF-8")  # Bosnian locale
-                tz = timezone("Europe/Sarajevo")  # Bosnia's timezone
-            else:
-                raise ValueError(
-                    "Unsupported country. Please specify 'Croatia', 'Serbia', or 'Bosnia'."
-                )
-        except locale.Error as error:
-            # TODO: this need to be fixed in github action
-            logger.error(f"unsupported locale setting.")
-            return None
+        date = self.replace_localized_months(date, country.lower())
 
         try:
             news_time = datetime.strptime(date + " " + time, "%d. %b %Y %H:%M")
-            news_time = make_aware(news_time, timezone=tz)
+            news_time = make_aware(news_time, timezone=timezone("Europe/Zagreb"))
         except ValueError:
             logger.error(
                 f"Time: {date + ' ' + time} does not match format '%d. %b %Y %H:%M"
@@ -113,13 +96,10 @@ class N1Api:
         )
 
     @staticmethod
-    def get_key_word(soup: BeautifulSoup) -> list:
-        # key_word = [
-        #     strong.get_text(strip=True) for p in paragraphs for strong in p.find_all("strong") if "emphasized-text" not in strong.get("data-attribute-id", [])
-        # ]
-        #
-        # content = [p.get_text(strip=True) for p in paragraphs]
-        raise NotImplemented
+    def get_news_tags(soup: BeautifulSoup) -> list:
+        tags_wrapper = soup.find("footer", class_="tags-wrapper")
+        tags = tags_wrapper.find_all("a", rel="tag")
+        return [tag.text.strip() for tag in tags]
 
     def n1_latest_news(self, country: str, page: int) -> [list, bool]:
         """
@@ -197,3 +177,61 @@ class N1Api:
             return "health"
         logger.error(f"Not know category: {category}.")
         return ""
+
+    @staticmethod
+    def replace_localized_months(date: str, country: str) -> str:
+        month_mappings = {
+            "hr": {
+                "sij": "Jan",
+                "velj": "Feb",
+                "ožu": "Mar",
+                "tra": "Apr",
+                "svi": "May",
+                "lip": "Jun",
+                "srp": "Jul",
+                "kol": "Aug",
+                "ruj": "Sep",
+                "lis": "Oct",
+                "stu": "Nov",
+                "pro": "Dec",
+            },
+            "ba": {
+                "jan": "Jan",
+                "feb": "Feb",
+                "mar": "Mar",
+                "apr": "Apr",
+                "maj": "May",
+                "jun": "Jun",
+                "jul": "Jul",
+                "avg": "Aug",
+                "sep": "Sep",
+                "okt": "Oct",
+                "nov": "Nov",
+                "dec": "Dec",
+            },
+            "rs": {
+                "jan": "Jan",
+                "feb": "Feb",
+                "mar": "Mar",
+                "apr": "Apr",
+                "maj": "May",
+                "jun": "Jun",
+                "jul": "Jul",
+                "avg": "Aug",
+                "sep": "Sep",
+                "okt": "Oct",
+                "nov": "Nov",
+                "dec": "Dec",
+            },
+        }
+
+        # Get the appropriate mapping based on the country
+        localized_months = month_mappings.get(country.lower())
+        if not localized_months:
+            raise ValueError(f"Unsupported country: {country}")
+
+        # Replace localized months with English equivalents
+        for local_month, eng_month in localized_months.items():
+            date = date.replace(local_month, eng_month)
+
+        return date
