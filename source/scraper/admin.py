@@ -9,7 +9,7 @@ class NewsAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ("name", "number_of_occurrences")
+    list_display = ("name", "id", "number_of_occurrences")
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)

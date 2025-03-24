@@ -18,7 +18,7 @@ class News(models.Model):
     country = models.CharField(
         max_length=2, choices=COUNTRY_CHOICES, blank=True, null=True
     )
-    url = models.URLField(max_length=500)
+    url = models.URLField(max_length=500, unique=True)
     tags = models.ManyToManyField("tag")
 
     def __str__(self):
@@ -30,7 +30,7 @@ class News(models.Model):
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
@@ -44,7 +44,7 @@ class Tag(models.Model):
         return self.news_set.count()
 
     @staticmethod
-    def get_today_top_10():  # Import News model to access the relationship
+    def get_today_top_10():
         today = datetime.today()
         return (
             Tag.objects.filter(news__post_time__date=today)
@@ -53,9 +53,12 @@ class Tag(models.Model):
         )
 
     @staticmethod
-    def get_top_10_by_date(start_date, end_date):
+    def get_top_10_by_date(country, start_date, end_date):
         return (
-            Tag.objects.filter(news__post_time__date__range=(start_date, end_date))
+            Tag.objects.filter(
+                news__post_time__date__range=(start_date, end_date),
+                news__country=country,
+            )
             .annotate(news_count=Count("news"))
             .order_by("-news_count")[:10]
         )

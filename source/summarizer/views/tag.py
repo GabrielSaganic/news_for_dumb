@@ -12,9 +12,10 @@ class TagView(ListAPIView):
     def get_queryset(self):
         start_date = self.request.query_params.get("start_date")
         end_date = self.request.query_params.get("end_date")
+        country = self.request.query_params.get("country")
 
         start_date = parse_date(start_date) if start_date else datetime.today().date()
         end_date = parse_date(end_date) if end_date else datetime.today().date()
 
-        queryset = Tag.get_top_10_by_date(start_date, end_date)
+        queryset = Tag.get_top_10_by_date(country, start_date, end_date)
         return queryset
