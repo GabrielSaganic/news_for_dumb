@@ -8,8 +8,6 @@ from scraper.models import News, Tag
 
 logger = make_logger()
 
-S3_BUCKET = os.environ.get("S3_BUCKET", "")
-
 
 class Command(BaseCommand):
     help = "Management command for scraping latest news from N1 portal."

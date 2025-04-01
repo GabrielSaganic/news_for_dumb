@@ -1,13 +1,10 @@
-import os
-
+from summarizer.summarizers import OpenAIHandler
 from django.core.management.base import BaseCommand
 from log_utilis import make_logger
 from scraper.api import N1Api
 from scraper.models import News, Tag
 
 logger = make_logger()
-
-S3_BUCKET = os.environ.get("S3_BUCKET", "")
 
 
 class Command(BaseCommand):
@@ -38,6 +35,8 @@ class Command(BaseCommand):
         news = []
         all_news_scraped = False
 
+        summarizer = OpenAIHandler()
+
         logger.info(
             f"Starting n1 scrape with params: Country {countries_param}, Category: {category_param}, Page: {page_param}"
         )
@@ -66,6 +65,12 @@ class Command(BaseCommand):
                 tags_list = []
                 for tag in news_detail.pop("tags", []):
                     tags_list.append(Tag.objects.get_or_create(name=tag)[0])
+
+                long_summary, short_summary = summarizer.summarize(news_detail.get("content"), news_detail.get("country"))
+
+                news_detail["long_summary"] = long_summary
+                news_detail["short_summary"] = short_summary
+
                 news = News.objects.create(**news_detail)
                 news.tags.add(*tags_list)
             except Exception:

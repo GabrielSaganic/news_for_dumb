@@ -4,7 +4,7 @@ from django.db.models import Count
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ("title", "post_time", "url", "author", "category", "country")
+    list_display = ("title", "post_time", "id", "url", "author", "category", "country")
     readonly_fields = ('tags',)
 
 @admin.register(Tag)

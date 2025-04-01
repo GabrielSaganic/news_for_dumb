@@ -23,7 +23,16 @@
         <label for="rs_radio_button">Srbija</label><br>
         <input type="radio" id="ba_radio_button" name="country" value="ba">
         <label for="ba_radio_button">Bosna & Hercegovina</label><br><br>
-        <input type="submit" value="Submit">
+    </form>
+
+    <form id="summary-length-form">
+        <p>Select a summary length:</p>
+        <input type="radio" id="short_radio_button" name="summary-length" value="3" checked>
+        <label for="short_radio_button">Short</label><br>
+        <input type="radio" id="long_radio_button" name="summary-length" value="2">
+        <label for="long_radio_button">Long</label><br>
+        <input type="radio" id="no_summary_radio_button" name="summary-length" value="1">
+        <label for="no_summary_radio_button">No Summary</label><br><br>
     </form>
 
     <!-- Placeholder for checkboxes -->
@@ -85,8 +94,20 @@
                 // Populate news results
                 targetElement.innerHTML = '<h2>News Results:</h2>';
                 data.forEach(item => {
+                    const title = document.createElement('h3');
+
+                    const link = document.createElement('a');
+                    link.textContent = item.title;
+                    link.href = item.url;
+                    link.target = '_blank';
+                    link.style.textDecoration = 'none';
+                    link.style.color = 'inherit';
+
+                    title.appendChild(link);
+
                     const paragraph = document.createElement('p');
-                    paragraph.textContent = item.title; // Assuming the news data has a "title" field
+                    paragraph.textContent = item.content;
+                    targetElement.appendChild(title);
                     targetElement.appendChild(paragraph);
                 });
             }
@@ -97,8 +118,9 @@
             const startDate = document.getElementById("start_date").value;
             const endDate = document.getElementById("end_date").value;
             const selectedCountry = document.querySelector('input[name="country"]:checked')?.value;
+            const selectedLength = document.querySelector('input[name="summary-length"]:checked')?.value;
             const selectedTags = Array.from(document.querySelectorAll('.tag-checkbox:checked')).map(cb => cb.value);
-            const url = `/summarize_news/news/?country=${selectedCountry}&start_date=${startDate}&end_date=${endDate}&tags=${selectedTags.join(",")}`;
+            const url = `/summarize_news/summarize_news/?country=${selectedCountry}&summary_length=${selectedLength}&start_date=${startDate}&end_date=${endDate}&tags=${selectedTags.join(",")}`;
 
             // Fetch data for the news endpoint
             fetchData(url, "news-results");
@@ -130,6 +152,14 @@
         countryRadios.forEach(radio => {
             radio.addEventListener("change", () => {
                 triggerTagsEndpoint();
+                triggerNewsEndpoint();
+            });
+        });
+
+        // Add event listeners for country changes
+        const lengthRadios = document.querySelectorAll('input[name="summary-length"]');
+        lengthRadios.forEach(radio => {
+            radio.addEventListener("change", () => {
                 triggerNewsEndpoint();
             });
         });
