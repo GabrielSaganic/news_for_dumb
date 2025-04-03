@@ -1,0 +1,128 @@
+* {
+    font-family: 'Arial', sans-serif;
+}
+
+/* Styles for the navigation bar */
+nav {
+    overflow: hidden;
+    border-bottom: 3px solid #007BFF;
+    border-radius: 0 0 10px 10px;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+nav ul li {
+    padding: 14px 20px;
+}
+
+nav ul li a {
+    color: black;
+    text-decoration: none;
+    display: block;
+    font-size: 25px;
+    font-family: Courier, monospace;
+    font-weight: bold;
+}
+
+#form-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    gap: 20px;
+    margin: 5px auto 0;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+}
+@media (max-width: 740px) {
+    #form-container {
+        flex-direction: column; /* Stack divs vertically */
+    }
+}
+
+#news-results {
+    gap: 20px;
+    margin: 5px auto 0;
+    padding: 0 5%;
+}
+
+/* Custom date input styles */
+
+#date-form label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #007BFF;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+#date-form {
+    display: flex;
+    flex-direction: column;
+}
+
+input[type="date"] {
+    appearance: none; /* Remove default browser styling */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border: 2px solid #007BFF; /* Add custom border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px; /* Add inner spacing */
+    font-size: 16px; /* Increase font size */
+    color: #333; /* Text color */
+    background-color: #f8f8f8; /* Light background color */
+    outline: none; /* Remove focus outline */
+    transition: border-color 0.3s; /* Smooth border color transition */
+    width: 90%; /* Optional: Adjust the width */
+    max-width: 250px;
+    margin-bottom: 10px;
+}
+
+input[type="date"]:focus {
+    border-color: #0056b3;
+}
+
+
+/* Custom fieldset styles */
+#tags-results {
+    border: none;
+    padding: 0;
+}
+
+#tags-results legend {
+    font-size: 16px;
+    font-weight: bold;
+    color: #007BFF;
+    padding-bottom: 10px;
+}
+
+
+/* Style the title inside the form */
+#country-form p,
+#summary-length-form p {
+    font-size: 16px;
+    font-weight: bold;
+    color: #007BFF;
+    margin: 0;
+    padding-bottom: 10px;
+}
+
+input[type="radio"] {
+    margin-right: 8px;
+}
+
+#tags-results label,
+#country-form label,
+#summary-length-form label {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+    margin-right: 10px;
+}

@@ -1,7 +1,7 @@
-from log_utilis import make_logger
-from summarizer.summarizers import OpenAIHandler
-from scraper.models import News
 from django.core.management.base import BaseCommand, CommandError
+from log_utilis import make_logger
+from scraper.models import News
+from summarizer.summarizers import OpenAIHandler
 
 logger = make_logger()
 
@@ -12,6 +12,7 @@ class Command(BaseCommand):
         # "bart": BartHandler
         "openai": OpenAIHandler
     }
+
     def add_arguments(self, parser):
         parser.add_argument("id", type=int, help="ID of the news", default=0)
         parser.add_argument(
@@ -22,8 +23,6 @@ class Command(BaseCommand):
             default="bart",
         )
 
-
-
     def handle(self, *args, **options):
         id_param = options["id"]
         model_param = options["model_name"]
@@ -33,13 +32,11 @@ class Command(BaseCommand):
         news = News.objects.filter(id=id_param).first()
 
         if not news:
-            raise CommandError(
-                f"Invalid ID: {id_param}. News can not be found."
-            )
+            raise CommandError(f"Invalid ID: {id_param}. News can not be found.")
 
         summarized_text = handler.summarize(news.content, news.country)
 
-        content_list = summarized_text.split('-------------')
+        content_list = summarized_text.split("-------------")
 
         print(content_list[0])
         print("-------------")

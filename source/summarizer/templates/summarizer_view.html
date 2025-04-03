@@ -1,172 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaScript Only - Fetch News and Tags</title>
-</head>
-<body>
-    <h1>Fetch News Tags and News by Date Range</h1>
-    <!-- Form to trigger requests -->
-    <form id="date-form">
-        <label for="start_date">Start Date:</label>
-        <input type="date" id="start_date" name="start_date" required>
-        <label for="end_date">End Date:</label>
-        <input type="date" id="end_date" name="end_date" required>
-    </form>
+{% extends 'base.html' %}
+{% block title %}News summary{% endblock %}
 
-    <form id="country-form">
-        <p>Select a country:</p>
-        <input type="radio" id="hr_radio_button" name="country" value="hr" checked>
-        <label for="hr_radio_button">Hrvatska</label><br>
-        <input type="radio" id="rs_radio_button" name="country" value="rs">
-        <label for="rs_radio_button">Srbija</label><br>
-        <input type="radio" id="ba_radio_button" name="country" value="ba">
-        <label for="ba_radio_button">Bosna & Hercegovina</label><br><br>
-    </form>
+{% block content %}
+    {% load static %}
+    <div id="form-container">
+        <form id="date-form">
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" required>
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" required>
+        </form>
 
-    <form id="summary-length-form">
-        <p>Select a summary length:</p>
-        <input type="radio" id="short_radio_button" name="summary-length" value="3" checked>
-        <label for="short_radio_button">Short</label><br>
-        <input type="radio" id="long_radio_button" name="summary-length" value="2">
-        <label for="long_radio_button">Long</label><br>
-        <input type="radio" id="no_summary_radio_button" name="summary-length" value="1">
-        <label for="no_summary_radio_button">No Summary</label><br><br>
-    </form>
+        <form id="country-form">
+            <p style="margin: 0;">Select a country:</p>
+            <input type="radio" id="hr_radio_button" name="country" value="hr" checked>
+            <label for="hr_radio_button">Hrvatska</label><br>
+            <input type="radio" id="rs_radio_button" name="country" value="rs">
+            <label for="rs_radio_button">Srbija</label><br>
+            <input type="radio" id="ba_radio_button" name="country" value="ba">
+            <label for="ba_radio_button">Bosna & Hercegovina</label><br><br>
+        </form>
 
-    <!-- Placeholder for checkboxes -->
-    <fieldset id="tags-results">
-        <legend>Choose Tags:</legend>
-        <!-- Checkboxes will be populated here -->
-        <p>Tags will be populated here...</p>
-    </fieldset>
+        <form id="summary-length-form">
+            <p style="margin: 0;">Select a summary length:</p>
+            <input type="radio" id="short_radio_button" name="summary-length" value="3" checked>
+            <label for="short_radio_button">Short</label><br>
+            <input type="radio" id="long_radio_button" name="summary-length" value="2">
+            <label for="long_radio_button">Long</label><br>
+            <input type="radio" id="no_summary_radio_button" name="summary-length" value="1">
+            <label for="no_summary_radio_button">No Summary</label><br><br>
+        </form>
+
+        <fieldset id="tags-results">
+            <legend>Choose Tags:</legend>
+            <p>Tags will be populated here...</p>
+        </fieldset>
+
+    </div>
 
     <!-- Placeholder for news results -->
     <div id="news-results">
-        <h2>News Results:</h2>
         <p>News will be displayed here...</p>
     </div>
-
-    <script>
-        // Automatically set today's date in the input fields
-        const today = new Date().toISOString().split("T")[0];
-        document.getElementById("start_date").value = today;
-        document.getElementById("end_date").value = today;
-
-        // Function to fetch data from an endpoint
-        async function fetchData(url, targetElementId) {
-            try {
-                const response = await fetch(url);
-                if (response.ok) {
-                    const data = await response.json();
-                    // Render the data into the target element
-                    renderData(targetElementId, data);
-                } else {
-                    console.error(`Error fetching data from ${url}: ${response.statusText}`);
-                }
-            } catch (error) {
-                console.error(`Network error fetching data from ${url}:`, error);
-            }
-        }
-
-        // Function to render fetched data
-        function renderData(targetElementId, data) {
-            const targetElement = document.getElementById(targetElementId);
-
-            if (targetElementId === "tags-results") {
-                // Populate checkboxes for tags
-                targetElement.innerHTML = '<legend>Choose Tags:</legend>';
-                data.forEach(item => {
-                    const label = document.createElement('label');
-                    label.innerHTML = `<input type="checkbox" name="tags" value="${item.id}" class="tag-checkbox"> ${item.name}`;
-                    targetElement.appendChild(label);
-                    targetElement.appendChild(document.createElement('br'));
-                });
-
-                // Attach event listeners to checkboxes
-                const checkboxes = document.querySelectorAll('.tag-checkbox');
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', triggerNewsEndpoint);
-                });
-
-            } else if (targetElementId === "news-results") {
-                // Populate news results
-                targetElement.innerHTML = '<h2>News Results:</h2>';
-                data.forEach(item => {
-                    const title = document.createElement('h3');
-
-                    const link = document.createElement('a');
-                    link.textContent = item.title;
-                    link.href = item.url;
-                    link.target = '_blank';
-                    link.style.textDecoration = 'none';
-                    link.style.color = 'inherit';
-
-                    title.appendChild(link);
-
-                    const paragraph = document.createElement('p');
-                    paragraph.textContent = item.content;
-                    targetElement.appendChild(title);
-                    targetElement.appendChild(paragraph);
-                });
-            }
-        }
-
-        // Function to trigger the news endpoint
-        function triggerNewsEndpoint() {
-            const startDate = document.getElementById("start_date").value;
-            const endDate = document.getElementById("end_date").value;
-            const selectedCountry = document.querySelector('input[name="country"]:checked')?.value;
-            const selectedLength = document.querySelector('input[name="summary-length"]:checked')?.value;
-            const selectedTags = Array.from(document.querySelectorAll('.tag-checkbox:checked')).map(cb => cb.value);
-            const url = `/summarize_news/summarize_news/?country=${selectedCountry}&summary_length=${selectedLength}&start_date=${startDate}&end_date=${endDate}&tags=${selectedTags.join(",")}`;
-
-            // Fetch data for the news endpoint
-            fetchData(url, "news-results");
-        }
-
-        // Function to trigger the tags endpoint
-        function triggerTagsEndpoint() {
-            const startDate = document.getElementById("start_date").value;
-            const endDate = document.getElementById("end_date").value;
-            const selectedCountry = document.querySelector('input[name="country"]:checked')?.value;
-            const url = `/summarize_news/tags/?country=${selectedCountry}&start_date=${startDate}&end_date=${endDate}`;
-
-            // Fetch data for the tags endpoint
-            fetchData(url, "tags-results");
-        }
-
-        // Add event listeners for date changes
-        document.getElementById("start_date").addEventListener("change", () => {
-            triggerTagsEndpoint();
-            triggerNewsEndpoint();
-        });
-        document.getElementById("end_date").addEventListener("change", () => {
-            triggerTagsEndpoint();
-            triggerNewsEndpoint();
-        });
-
-        // Add event listeners for country changes
-        const countryRadios = document.querySelectorAll('input[name="country"]');
-        countryRadios.forEach(radio => {
-            radio.addEventListener("change", () => {
-                triggerTagsEndpoint();
-                triggerNewsEndpoint();
-            });
-        });
-
-        // Add event listeners for country changes
-        const lengthRadios = document.querySelectorAll('input[name="summary-length"]');
-        lengthRadios.forEach(radio => {
-            radio.addEventListener("change", () => {
-                triggerNewsEndpoint();
-            });
-        });
-
-        // Trigger the tags and news endpoints on page load
-        triggerTagsEndpoint();
-        triggerNewsEndpoint();
-    </script>
-</body>
-</html>
+    <script src="{% static 'summarizer/js/script.js' %}"></script>
+{% endblock %}

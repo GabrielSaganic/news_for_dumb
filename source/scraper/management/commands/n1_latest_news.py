@@ -1,8 +1,8 @@
-from summarizer.summarizers import OpenAIHandler
 from django.core.management.base import BaseCommand
 from log_utilis import make_logger
 from scraper.api import N1Api
 from scraper.models import News, Tag
+from summarizer.summarizers import OpenAIHandler
 
 logger = make_logger()
 
@@ -66,7 +66,9 @@ class Command(BaseCommand):
                 for tag in news_detail.pop("tags", []):
                     tags_list.append(Tag.objects.get_or_create(name=tag)[0])
 
-                long_summary, short_summary = summarizer.summarize(news_detail.get("content"), news_detail.get("country"))
+                long_summary, short_summary = summarizer.summarize(
+                    news_detail.get("content"), news_detail.get("country")
+                )
 
                 news_detail["long_summary"] = long_summary
                 news_detail["short_summary"] = short_summary

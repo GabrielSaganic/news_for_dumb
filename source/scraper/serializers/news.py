@@ -9,6 +9,6 @@ class NewsSerializer(serializers.ModelSerializer):
 
 
 class SummarizedNewsSerializer(serializers.Serializer):
-    content = serializers.CharField()
+    summary_text = serializers.CharField()
     title = serializers.CharField()
     url = serializers.URLField()

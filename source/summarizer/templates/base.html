@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News summary</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'summarizer/css/style.css' %}">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#home">Summary</a></li>
+            <li><a href="#about">Overview</a></li>
+        </ul>
+    </nav>
+
+    {% block content %}
+    {% endblock %}
+</body>
+</html>
