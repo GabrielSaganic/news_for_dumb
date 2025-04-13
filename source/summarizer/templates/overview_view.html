@@ -23,29 +23,20 @@
 
         <form id="summary-length-form">
             <p style="margin: 0;">Select a summary length:</p>
-            <input type="radio" id="short_radio_button" name="summary-length" value="3" checked>
+            <input type="radio" id="short_radio_button" name="summary-length" value="1" checked>
             <label for="short_radio_button">Short</label><br>
             <input type="radio" id="long_radio_button" name="summary-length" value="2">
             <label for="long_radio_button">Long</label><br>
-            <input type="radio" id="no_summary_radio_button" name="summary-length" value="1">
-            <label for="no_summary_radio_button">No Summary</label><br><br>
         </form>
 
-        <fieldset id="tags-results">
-            <legend>Choose Tags:</legend>
-            <p>Tags will be populated here...</p>
-        </fieldset>
-
-        <fieldset id="categories-results">
-            <legend>Choose Categories:</legend>
-            <p>Tags will be populated here...</p>
-        </fieldset>
-
+        <form id="categories-results">
+            <p style="margin: 0;">Choose Categories::</p>
+        </form>
     </div>
 
     <!-- Placeholder for news results -->
-    <div id="news-results">
-        <p>News will be displayed here...</p>
+    <div id="overview-results">
+        <p>Select a category to get news overview.</p>
     </div>
-    <script src="{% static 'summarizer/js/summarizer_script.js' %}"></script>
+    <script src="{% static 'summarizer/js/overview_script.js' %}"></script>
 {% endblock %}

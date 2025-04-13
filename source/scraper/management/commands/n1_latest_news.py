@@ -33,7 +33,6 @@ class Command(BaseCommand):
 
         latest_news = []
         news = []
-        all_news_scraped = False
 
         summarizer = OpenAIHandler()
 
@@ -43,11 +42,12 @@ class Command(BaseCommand):
         for country_param in countries_param:
             for i in range(1, page_param + 1):
                 try:
-                    news, all_news_scraped = n1_api.n1_latest_news(country_param, i)
+                    news = n1_api.n1_latest_news(country_param, i)
                 except Exception:
                     logger.exception(f"Error scraping latest news.")
+
                 latest_news = latest_news + news
-                if all_news_scraped:
+                if not news:
                     break
         logger.info(
             f"Successfully get all latest news. Number of news: {len(latest_news)}"
@@ -66,12 +66,12 @@ class Command(BaseCommand):
                 for tag in news_detail.pop("tags", []):
                     tags_list.append(Tag.objects.get_or_create(name=tag)[0])
 
-                long_summary, short_summary = summarizer.summarize(
-                    news_detail.get("content"), news_detail.get("country")
-                )
-
-                news_detail["long_summary"] = long_summary
-                news_detail["short_summary"] = short_summary
+                # long_summary, short_summary = summarizer.summarize(
+                #     news_detail.get("content"), news_detail.get("country")
+                # )
+                #
+                # news_detail["long_summary"] = long_summary
+                # news_detail["short_summary"] = short_summary
 
                 news = News.objects.create(**news_detail)
                 news.tags.add(*tags_list)

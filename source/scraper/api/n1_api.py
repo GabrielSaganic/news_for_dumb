@@ -6,6 +6,7 @@ from django.utils.timezone import make_aware
 from log_utilis import make_logger
 from pytz import timezone
 from scraper.models import News
+from scraper.models import Category
 
 logger = make_logger()
 
@@ -110,7 +111,6 @@ class N1Api:
         :return: A list of dictionaries, where each dictionary contains:
                  - "category" (str): The category of the news.
                  - "url" (str): The URL of the news article.
-                 A boolean value if all latest news are scraped.
         Example:
             # Output:
             # [
@@ -126,7 +126,6 @@ class N1Api:
         news_list = []
         soup = BeautifulSoup(html_content, "html.parser")
         title_elements = soup.find_all("a", class_="uc-block-post-grid-title-link")
-        all_news_scraped = False
         for title_element in title_elements:
             url = title_element.get("href")
             # TODO need to be done better, not have DB call each time
@@ -139,9 +138,7 @@ class N1Api:
                     "country": country,
                 }
                 news_list.append(data)
-            else:
-                all_news_scraped = True
-        return news_list, all_news_scraped
+        return news_list
 
     @staticmethod
     def filter_news(news_list: list, category_filter: list) -> list:
@@ -158,25 +155,25 @@ class N1Api:
     @staticmethod
     def normalize_category(category):
         if category in ["vesti", "vijesti"]:
-            return "news"
+            return Category.objects.get_or_create(name="news")[0]
         if category in ["svet", "svijet"]:
-            return "world"
+            return Category.objects.get_or_create(name="world")[0]
         if category in ["sport"]:
-            return "sport"
+            return Category.objects.get_or_create(name="sport")[0]
         if category in ["region", "regija"]:
-            return "region"
+            return Category.objects.get_or_create(name="region")[0]
         if category in ["biznis"]:
-            return "business"
+            return Category.objects.get_or_create(name="business")[0]
         if category in ["magazin"]:
-            return "magazine"
+            return Category.objects.get_or_create(name="magazine")[0]
         if category in ["video"]:
-            return "video"
+            return Category.objects.get_or_create(name="video")[0]
         if category in ["kultura"]:
-            return "kultura"
+            return Category.objects.get_or_create(name="culture")[0]
         if category in ["zdravlje"]:
-            return "health"
-        logger.error(f"Not know category: {category}.")
-        return ""
+            return Category.objects.get_or_create(name="health")[0]
+        return Category.objects.get_or_create(name=category)[0]
+
 
     @staticmethod
     def replace_localized_months(date: str, country: str) -> str:

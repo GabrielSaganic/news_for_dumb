@@ -91,12 +91,14 @@ input[type="date"]:focus {
 
 
 /* Custom fieldset styles */
-#tags-results {
+#tags-results,
+#categories-results {
     border: none;
     padding: 0;
 }
 
-#tags-results legend {
+#tags-results legend,
+#categories-results legend {
     font-size: 16px;
     font-weight: bold;
     color: #007BFF;
@@ -119,6 +121,7 @@ input[type="radio"] {
 }
 
 #tags-results label,
+#categories-results label,
 #country-form label,
 #summary-length-form label {
     font-weight: bold;

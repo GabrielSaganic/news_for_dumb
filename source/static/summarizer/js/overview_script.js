@@ -22,102 +22,87 @@
         // Function to render fetched data
         function renderData(targetElementId, data) {
             const targetElement = document.getElementById(targetElementId);
-
-            if (targetElementId === "tags-results") {
+            if (targetElementId === "overview-results") {
+                // Populate news results
+                targetElement.innerHTML = '';
+                if (data === "") {
+                    const no_news_title = document.createElement('h1');
+                    no_news_title.textContent = "No news found";
+                    targetElement.appendChild(no_news_title);
+                } else {
+                    const paragraph = document.createElement('p');
+                    paragraph.textContent = data.content;
+                    targetElement.appendChild(paragraph);
+                }
+            } else if (targetElementId === "categories-results") {
                 // Populate checkboxes for tags
-                targetElement.innerHTML = '<legend>Choose Tags:</legend>';
+                targetElement.innerHTML = '<legend>Choose Categories:</legend>';
                 data.forEach(item => {
                     const label = document.createElement('label');
-                    label.innerHTML = `<input type="checkbox" name="tags" value="${item.id}" class="tag-checkbox"> ${item.name}`;
+                    label.innerHTML = `<input type="radio" name="categories" value="${item.id}" class="category-checkbox"> ${item.name}`;
                     targetElement.appendChild(label);
                     targetElement.appendChild(document.createElement('br'));
                 });
 
                 // Attach event listeners to checkboxes
-                const checkboxes = document.querySelectorAll('.tag-checkbox');
+                const checkboxes = document.querySelectorAll('.category-checkbox');
                 checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', triggerNewsEndpoint);
-                });
-
-            } else if (targetElementId === "news-results") {
-                // Populate news results
-                targetElement.innerHTML = '';
-                if (data.length === 0) {
-                    const no_news_title = document.createElement('h1');
-                    no_news_title.textContent = "No news found";
-                    targetElement.appendChild(no_news_title);
-                }
-                data.forEach(item => {
-                    const title = document.createElement('h3');
-
-                    const link = document.createElement('a');
-                    link.textContent = item.title;
-                    link.href = item.url;
-                    link.target = '_blank';
-                    link.style.textDecoration = 'none';
-                    link.style.color = 'inherit';
-
-                    title.appendChild(link);
-
-                    const paragraph = document.createElement('p');
-                    paragraph.textContent = item.summary_text;
-                    targetElement.appendChild(title);
-                    targetElement.appendChild(paragraph);
+                    checkbox.addEventListener('change', triggerOverviewEndpoint);
                 });
             }
         }
 
         // Function to trigger the news endpoint
-        function triggerNewsEndpoint() {
+        function triggerOverviewEndpoint() {
             const startDate = document.getElementById("start_date").value;
             const endDate = document.getElementById("end_date").value;
             const selectedCountry = document.querySelector('input[name="country"]:checked')?.value;
             const selectedLength = document.querySelector('input[name="summary-length"]:checked')?.value;
-            const selectedTags = Array.from(document.querySelectorAll('.tag-checkbox:checked')).map(cb => cb.value);
-            const url = `/summarize_news/summarize_news/?country=${selectedCountry}&summary_length=${selectedLength}&start_date=${startDate}&end_date=${endDate}&tags=${selectedTags.join(",")}`;
+            const selectedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked')).map(cb => cb.value);
+            const url = `/summarize_news/news-overview/?country=${selectedCountry}&summary_length=${selectedLength}&start_date=${startDate}&end_date=${endDate}&categories=${selectedCategories.join(",")}`;
 
             // Fetch data for the news endpoint
-            fetchData(url, "news-results");
+            fetchData(url, "overview-results");
         }
 
         // Function to trigger the tags endpoint
-        function triggerTagsEndpoint() {
+        function triggerCategoriesEndpoint() {
             const startDate = document.getElementById("start_date").value;
             const endDate = document.getElementById("end_date").value;
             const selectedCountry = document.querySelector('input[name="country"]:checked')?.value;
-            const url = `/summarize_news/tags/?country=${selectedCountry}&start_date=${startDate}&end_date=${endDate}`;
+            const categoriesUrl = `/summarize_news/categories/?country=${selectedCountry}&start_date=${startDate}&end_date=${endDate}`;
 
             // Fetch data for the tags endpoint
-            fetchData(url, "tags-results");
+            fetchData(categoriesUrl, "categories-results");
+
         }
 
         // Add event listeners for date changes
         document.getElementById("start_date").addEventListener("change", () => {
-            triggerTagsEndpoint();
-            triggerNewsEndpoint();
+            triggerCategoriesEndpoint();
+            triggerOverviewEndpoint();
         });
         document.getElementById("end_date").addEventListener("change", () => {
-            triggerTagsEndpoint();
-            triggerNewsEndpoint();
+            triggerCategoriesEndpoint();
+            triggerOverviewEndpoint();
         });
 
         // Add event listeners for country changes
         const countryRadios = document.querySelectorAll('input[name="country"]');
         countryRadios.forEach(radio => {
             radio.addEventListener("change", () => {
-                triggerTagsEndpoint();
-                triggerNewsEndpoint();
+                triggerCategoriesEndpoint()
+                triggerOverviewEndpoint();
             });
         });
 
-        // Add event listeners for country changes
+        // Add event listeners for length changes
         const lengthRadios = document.querySelectorAll('input[name="summary-length"]');
         lengthRadios.forEach(radio => {
             radio.addEventListener("change", () => {
-                triggerNewsEndpoint();
+                triggerOverviewEndpoint();
             });
         });
 
         // Trigger the tags and news endpoints on page load
-        triggerTagsEndpoint();
-        triggerNewsEndpoint();
+        triggerCategoriesEndpoint();
