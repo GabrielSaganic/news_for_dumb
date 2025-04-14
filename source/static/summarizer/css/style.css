@@ -2,6 +2,15 @@
     font-family: 'Arial', sans-serif;
 }
 
+#overview {
+    margin: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
 /* Styles for the navigation bar */
 nav {
     overflow: hidden;
@@ -47,6 +56,7 @@ nav ul li a {
     }
 }
 
+#overview,
 #news-results {
     gap: 20px;
     margin: 5px auto 0;
@@ -69,23 +79,44 @@ nav ul li a {
 }
 
 input[type="date"] {
-    appearance: none; /* Remove default browser styling */
+    appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    border: 2px solid #007BFF; /* Add custom border */
-    border-radius: 5px; /* Rounded corners */
-    padding: 10px; /* Add inner spacing */
-    font-size: 16px; /* Increase font size */
-    color: #333; /* Text color */
-    background-color: #f8f8f8; /* Light background color */
-    outline: none; /* Remove focus outline */
-    transition: border-color 0.3s; /* Smooth border color transition */
-    width: 90%; /* Optional: Adjust the width */
+    border: 2px solid #007BFF;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+    color: #333;
+    background-color: #f8f8f8;
+    outline: none;
+    transition: border-color 0.3s;
+    width: 90%;
     max-width: 250px;
     margin-bottom: 10px;
 }
 
 input[type="date"]:focus {
+    border-color: #0056b3;
+}
+
+input[type="text"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border: 2px solid #007BFF;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+    color: #333;
+    background-color: #f8f8f8;
+    outline: none;
+    transition: border-color 0.3s;
+    width: 90%;
+    max-width: 250px;
+    margin-bottom: 10px;
+}
+
+input[type="text"]:focus {
     border-color: #0056b3;
 }
 
@@ -128,4 +159,45 @@ input[type="radio"] {
     font-size: 14px;
     color: #333;
     margin-right: 10px;
+}
+
+.loader {
+    margin-top: 10%;
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid #007BFF;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 2s linear infinite;
+    display: none;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+#search-button {
+    border-radius: 8px;
+    border-style: none;
+    box-shadow: rgba(255, 255, 255, 0.26) 0 1px 2px inset;
+    background-color: #007BFF;
+    box-sizing: border-box;
+    color: #fff;
+    font-family: "RM Neue",sans-serif;
+    font-size: 100%;
+    line-height: 1.15;
+    margin: 0;
+    padding: 10px 21px;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+#search-button:active {
+    background-color: #006AE8;
+}
+
+#search-button:hover {
+    background-color: #1C84FF;
 }

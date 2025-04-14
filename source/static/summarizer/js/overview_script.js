@@ -5,17 +5,28 @@
 
         // Function to fetch data from an endpoint
         async function fetchData(url, targetElementId) {
+            const loadingScreen = document.getElementById("loading-screen");
             try {
+                const targetElement = document.getElementById(targetElementId);
+                targetElement.innerHTML = ""
+                loadingScreen.style.display = "flex";
                 const response = await fetch(url);
                 if (response.ok) {
                     const data = await response.json();
                     // Render the data into the target element
                     renderData(targetElementId, data);
                 } else {
+                    const data = await response.json();
+
+                    targetElement.innerHTML = data.detail
+
                     console.error(`Error fetching data from ${url}: ${response.statusText}`);
                 }
             } catch (error) {
                 console.error(`Network error fetching data from ${url}:`, error);
+            } finally {
+                // Hide the loading screen once the request is complete
+                loadingScreen.style.display = "none";
             }
         }
 
@@ -32,7 +43,25 @@
                 } else {
                     const paragraph = document.createElement('p');
                     paragraph.textContent = data.content;
+                    paragraph.class = "newsOverview";
+
                     targetElement.appendChild(paragraph);
+
+                    const ulElement = document.createElement("ul");
+                    ulElement.id = "newsDetail";
+                    targetElement.appendChild(ulElement);
+
+                    data.news_detail.forEach(item => {
+                        const liElement = document.createElement("li");
+
+                        const anchorElement = document.createElement("a");
+                        anchorElement.href = item.url;
+                        anchorElement.textContent = item.title;
+                        anchorElement.target = "_blank";
+                        liElement.appendChild(anchorElement);
+                        ulElement.appendChild(liElement);
+                    });
+
                 }
             } else if (targetElementId === "categories-results") {
                 // Populate checkboxes for tags
@@ -47,8 +76,13 @@
                 // Attach event listeners to checkboxes
                 const checkboxes = document.querySelectorAll('.category-checkbox');
                 checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', triggerOverviewEndpoint);
+                    checkbox.addEventListener('change', () => {
+                        const keyWordsInputField = document.getElementById("key-word-input-field");
+                        keyWordsInputField.value = "";
+                        triggerOverviewEndpoint()
+                    });
                 });
+
             }
         }
 
@@ -59,9 +93,17 @@
             const selectedCountry = document.querySelector('input[name="country"]:checked')?.value;
             const selectedLength = document.querySelector('input[name="summary-length"]:checked')?.value;
             const selectedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked')).map(cb => cb.value);
-            const url = `/summarize_news/news-overview/?country=${selectedCountry}&summary_length=${selectedLength}&start_date=${startDate}&end_date=${endDate}&categories=${selectedCategories.join(",")}`;
+            const keyWords = document.getElementById("key-word-input-field").value;
 
-            // Fetch data for the news endpoint
+            let url = `/summarize_news/news-overview/?country=${selectedCountry}&summary_length=${selectedLength}&start_date=${startDate}&end_date=${endDate}`;
+
+            if (selectedCategories.length > 0) {
+                url += `&categories=${selectedCategories.join(",")}`;
+            }
+            if (keyWords !== "") {
+                url += `&keyword=${keyWords}`;
+            }
+
             fetchData(url, "overview-results");
         }
 
@@ -106,3 +148,10 @@
 
         // Trigger the tags and news endpoints on page load
         triggerCategoriesEndpoint();
+        document.getElementById("search-button").addEventListener("click", () => {
+            const checkboxes = document.querySelectorAll('.category-checkbox');
+            checkboxes.forEach(radio => {
+                radio.checked = false; // Deselect each radio button
+            });
+            triggerOverviewEndpoint()
+        });

@@ -1,3 +1,3 @@
-from scraper.serializers.news import NewsSerializer, SummarizedNewsSerializer, OverviewNewsSerializer
+from scraper.serializers.news import NewsSerializer, SummarizedNewsSerializer, OverviewNewsSerializer, QueryParamsOverviewSerializer
 from scraper.serializers.tag import TagSerializer
 from scraper.serializers.category import CategorySerializer

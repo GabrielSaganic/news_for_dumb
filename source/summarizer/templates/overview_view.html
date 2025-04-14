@@ -32,11 +32,21 @@
         <form id="categories-results">
             <p style="margin: 0;">Choose Categories::</p>
         </form>
+        <div>
+            <input type="text" id="key-word-input-field" placeholder="Search news by key word">
+            <button id="search-button">Search</button>
+        </div>
+
     </div>
 
+
     <!-- Placeholder for news results -->
-    <div id="overview-results">
-        <p>Select a category to get news overview.</p>
+    <div id="overview">
+        <div class="loader" id="loading-screen"></div>
+        <div id="overview-results">
+            <p>Select a category to get news overview.</p>
+        </div>
     </div>
+
     <script src="{% static 'summarizer/js/overview_script.js' %}"></script>
 {% endblock %}
