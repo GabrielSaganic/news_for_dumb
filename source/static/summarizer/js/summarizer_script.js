@@ -87,10 +87,9 @@
             const startDate = document.getElementById("start_date").value;
             const endDate = document.getElementById("end_date").value;
             const selectedCountry = document.querySelector('input[name="country"]:checked')?.value;
-            const selectedLength = document.querySelector('input[name="summary-length"]:checked')?.value;
             const selectedTags = Array.from(document.querySelectorAll('.tag-checkbox:checked')).map(cb => cb.value);
             const selectedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked')).map(cb => cb.value);
-            const url = `/summarize_news/summarize_news/?country=${selectedCountry}&summary_length=${selectedLength}&start_date=${startDate}&end_date=${endDate}&tags=${selectedTags.join(",")}&categories=${selectedCategories.join(",")}&`;
+            const url = `/summarize_news/summarize_news/?country=${selectedCountry}&start_date=${startDate}&end_date=${endDate}&tags=${selectedTags.join(",")}&categories=${selectedCategories.join(",")}&`;
 
             // Fetch data for the news endpoint
             fetchData(url, "news-results");
@@ -125,14 +124,6 @@
         countryRadios.forEach(radio => {
             radio.addEventListener("change", () => {
                 triggerTagsEndpoint();
-                triggerNewsEndpoint();
-            });
-        });
-
-        // Add event listeners for country changes
-        const lengthRadios = document.querySelectorAll('input[name="summary-length"]');
-        lengthRadios.forEach(radio => {
-            radio.addEventListener("change", () => {
                 triggerNewsEndpoint();
             });
         });

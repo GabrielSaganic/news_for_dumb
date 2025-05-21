@@ -23,16 +23,10 @@ class NewsViewSet(ViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'], url_path='summarize_news')
-    def summarize_news(self, request):
-        length = request.query_params.get("summary_length")
+    def summarize_news(self, _):
         queryset = self.get_queryset()
 
-        if length == "1":
-            queryset = queryset.annotate(summary_text=F('content'))
-        elif length == "2":
-            queryset = queryset.exclude(long_summary__isnull=True).annotate(summary_text=F('long_summary'))
-        else:
-            queryset = queryset.exclude(short_summary__isnull=True).annotate(summary_text=F('short_summary'))
+        queryset = queryset.exclude(summary__isnull=True).annotate(summary_text=F('summary'))
 
         queryset = queryset.values("summary_text", "title", "url")
 
@@ -47,13 +41,13 @@ class NewsViewSet(ViewSet):
         length = request.query_params.get("summary_length")
         country = self.request.query_params.get("country")
 
-        queryset = self.get_queryset().exclude(long_summary__isnull=True)
+        queryset = self.get_queryset().exclude(summary__isnull=True)
 
         if queryset.count() > 10:
             return Response({"detail": "Can't summarize more then 10 news."}, status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
 
         news_detail = queryset.values("title", "url")
-        content_queryset = queryset.values_list("long_summary", flat=True)
+        content_queryset = queryset.values_list("summary", flat=True)
 
         content = " ".join(content_queryset)
         content = OpenAIHandler().overview(text=content, country=country, overview_length=length)

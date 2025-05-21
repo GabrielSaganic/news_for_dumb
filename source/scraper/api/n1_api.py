@@ -7,6 +7,7 @@ from log_utilis import make_logger
 from pytz import timezone
 from scraper.models import News
 from scraper.models import Category
+from urllib.parse import urljoin
 
 logger = make_logger()
 
@@ -21,8 +22,7 @@ class N1Api:
         html_content = response.text
         soup = BeautifulSoup(html_content, "html.parser")
 
-        title = soup.find("h1", class_="entry-title").text.strip()
-
+        title = soup.find("h1", {"data-testid": "article-main-title"}).text.strip()
         content = self.get_news_content(soup)
         post_time = self.get_news_time(soup, news_dict.get("country"))
         author = self.get_news_author(soup)
@@ -38,7 +38,7 @@ class N1Api:
 
     @staticmethod
     def get_news_content(soup: BeautifulSoup) -> str:
-        entry_content = soup.find("div", class_="entry-content")
+        entry_content = soup.find("article", {"data-testid": "article-wrapper"})
 
         # remove all related news in element
         for element in entry_content.find_all(
@@ -67,17 +67,15 @@ class N1Api:
         return content
 
     def get_news_time(self, soup: BeautifulSoup, country: str) -> [datetime, None]:
-        post_time = soup.find("span", class_="post-time")
-        date = post_time.find_all("span")[0].text.strip()
-        time = post_time.find_all("span")[1].text.strip()
-        date = self.replace_localized_months(date, country.lower())
+        post_time = soup.find("div", {"data-testid": "article-published-time"})
+        date = self.replace_localized_months(post_time.text.strip(), country.lower())
 
         try:
-            news_time = datetime.strptime(date + " " + time, "%d. %b %Y %H:%M")
+            news_time = datetime.strptime(date, "%d. %b. %Y. %H:%M")
             news_time = make_aware(news_time, timezone=timezone("Europe/Zagreb"))
         except ValueError:
             logger.error(
-                f"Time: {date + ' ' + time} does not match format '%d. %b %Y %H:%M"
+                f"Time: {date} does not match format '%d. %b. %Y. %H:%M"
             )
             return None
         except Exception as error:
@@ -88,18 +86,12 @@ class N1Api:
 
     @staticmethod
     def get_news_author(soup: BeautifulSoup) -> str:
-        post_author = soup.find("span", class_="post-author")
-        return (
-            post_author.find("a", class_="fn")
-            .text.strip()
-            .replace("Autor: ", "")
-            .strip()
-        )
+        post_author = soup.find("span", class_="author-name")
+        return post_author.text.strip()
 
     @staticmethod
     def get_news_tags(soup: BeautifulSoup) -> list:
-        tags_wrapper = soup.find("footer", class_="tags-wrapper")
-        tags = tags_wrapper.find_all("a", rel="tag")
+        tags = soup.find("a", class_="tag-block")
         return [tag.text.strip() for tag in tags]
 
     def n1_latest_news(self, country: str, page: int) -> [list, bool]:
@@ -119,22 +111,24 @@ class N1Api:
             # ]
         """
         logger.info(f"Getting latest news. Country: {country}, Page: {page}")
-        url = f"https://n1info.{country}/najnovije/page/{page}"
-        response = requests.get(url)
+        base_url = f"https://n1info.{country}"
+        front_page_url = urljoin(base_url, f"/najnovije/{page}/")
+        response = requests.get(front_page_url)
         html_content = response.text
 
         news_list = []
         soup = BeautifulSoup(html_content, "html.parser")
-        title_elements = soup.find_all("a", class_="uc-block-post-grid-title-link")
+        title_elements = soup.find_all("a", {'data-testid': 'article-upper-title'})
         for title_element in title_elements:
-            url = title_element.get("href")
+            news_url = urljoin(base_url, title_element.get("href"))
+            logger.info(news_url)
             # TODO need to be done better, not have DB call each time
-            if not News.objects.filter(url=url, country=country).exists():
-                url_split = url.split("/")
+            if not News.objects.filter(url=news_url, country=country).exists():
+                url_split = news_url.split("/")
                 category = url_split[3]
                 data = {
                     "category": self.normalize_category(category),
-                    "url": url,
+                    "url": news_url,
                     "country": country,
                 }
                 news_list.append(data)

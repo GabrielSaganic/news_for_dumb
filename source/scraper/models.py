@@ -12,8 +12,7 @@ class News(models.Model):
     ]
     title = models.CharField(max_length=255)
     content = models.TextField()
-    long_summary = models.TextField(blank=True, null=True)
-    short_summary = models.TextField(blank=True, null=True)
+    summary = models.TextField(blank=True, null=True)
     post_time = models.DateTimeField(blank=True, null=True)
     author = models.CharField(max_length=100, blank=True, null=True)
     category = models.ForeignKey("category", blank=True, null=True, on_delete=models.CASCADE)

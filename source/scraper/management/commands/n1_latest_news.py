@@ -66,12 +66,11 @@ class Command(BaseCommand):
                 for tag in news_detail.pop("tags", []):
                     tags_list.append(Tag.objects.get_or_create(name=tag)[0])
 
-                long_summary, short_summary = summarizer.summarize(
+                short_summary = summarizer.summarize(
                     news_detail.get("content"), news_detail.get("country")
                 )
 
-                news_detail["long_summary"] = long_summary
-                news_detail["short_summary"] = short_summary
+                news_detail["summary"] = short_summary
 
                 news = News.objects.create(**news_detail)
                 news.tags.add(*tags_list)
